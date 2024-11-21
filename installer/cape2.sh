@@ -932,12 +932,8 @@ function dependencies() {
     apt-get install python3-pil subversion uwsgi uwsgi-plugin-python3 python3-pyelftools git curl -y
     apt-get install openvpn wireguard -y
     apt-get install crudini -y
-
     # APT poetry is ultra outdated
-    curl -sSL https://install.python-poetry.org | POETRY_HOME=/etc/poetry python3 -
-    echo "PATH=$PATH:/etc/poetry/bin/" >> /etc/bash.bashrc
-    source /etc/bash.bashrc
-
+    curl -sSL https://install.python-poetry.org | python3 -
     apt-get install locate # used by extra/libvirt_installer.sh
 
     # de4dot selfextraction
@@ -995,36 +991,36 @@ function dependencies() {
     # https://www.torproject.org/docs/debian.html.en
     sudo apt-get install gnupg2 -y
 
-    wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor | sudo tee /usr/share/keyrings/deb.torproject.org-keyring.gpg >/dev/null
+#     wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor | sudo tee /usr/share/keyrings/deb.torproject.org-keyring.gpg >/dev/null
 
-    # Tor project has no release for Ubuntu noble (24-10-18)
-    # TODO: Check if it is still the case
-    if [ "$(lsb_release -cs)" = "noble" ]; then
-        echo "deb [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg arch=amd64] https://deb.torproject.org/torproject.org jammy main" > /etc/apt/sources.list.d/tor.list
-        echo "deb-src [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg arch=amd64] https://deb.torproject.org/torproject.org jammy main" >> /etc/apt/sources.list.d/tor.list
-    else
-        echo "deb [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg arch=amd64] https://deb.torproject.org/torproject.org $(lsb_release -cs) main" > /etc/apt/sources.list.d/tor.list
-        echo "deb-src [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg arch=amd64] https://deb.torproject.org/torproject.org $(lsb_release -cs) main" >> /etc/apt/sources.list.d/tor.list
-    fi
+#     # Tor project has no release for Ubuntu noble (24-10-18)
+#     # TODO: Check if it is still the case
+#     if [ "$(lsb_release -cs)" = "noble" ]; then
+#         echo "deb [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg arch=amd64] https://deb.torproject.org/torproject.org jammy main" > /etc/apt/sources.list.d/tor.list
+#         echo "deb-src [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg arch=amd64] https://deb.torproject.org/torproject.org jammy main" >> /etc/apt/sources.list.d/tor.list
+#     else
+#         echo "deb [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg arch=amd64] https://deb.torproject.org/torproject.org $(lsb_release -cs) main" > /etc/apt/sources.list.d/tor.list
+#         echo "deb-src [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg arch=amd64] https://deb.torproject.org/torproject.org $(lsb_release -cs) main" >> /etc/apt/sources.list.d/tor.list
+#     fi
 
-    sudo apt-get update 2>/dev/null
-    sudo systemctl stop tor@default.service && sudo systemctl disable tor@default.service
-    apt-get install tor deb.torproject.org-keyring libzstd1 -y
+#     sudo apt-get update 2>/dev/null
+#     sudo systemctl stop tor@default.service && sudo systemctl disable tor@default.service
+#     apt-get install tor deb.torproject.org-keyring libzstd1 -y
 
-    sed -i 's/#RunAsDaemon 1/RunAsDaemon 1/g' /etc/tor/torrc
+#     sed -i 's/#RunAsDaemon 1/RunAsDaemon 1/g' /etc/tor/torrc
 
-    cat >> /etc/tor/torrc <<EOF
-TransPort ${IFACE_IP}:9040
-DNSPort ${IFACE_IP}:5353
-NumCPUs $(getconf _NPROCESSORS_ONLN)
-SocksTimeout ${TOR_SOCKET_TIMEOUT}
-ControlPort 9051
-HashedControlPassword 16:D14CC89AD7848B8C60093105E8284A2D3AB2CF3C20D95FECA0848CFAD2
-EOF
+#     cat >> /etc/tor/torrc <<EOF
+# TransPort ${IFACE_IP}:9040
+# DNSPort ${IFACE_IP}:5353
+# NumCPUs $(getconf _NPROCESSORS_ONLN)
+# SocksTimeout ${TOR_SOCKET_TIMEOUT}
+# ControlPort 9051
+# HashedControlPassword 16:D14CC89AD7848B8C60093105E8284A2D3AB2CF3C20D95FECA0848CFAD2
+# EOF
 
-    #Then restart Tor:
-    sudo systemctl enable tor
-    sudo systemctl start tor
+#     #Then restart Tor:
+#     sudo systemctl enable tor
+#     sudo systemctl start tor
 
     #Edit the Privoxy configuration
     #sudo sed -i 's/R#        forward-socks5t             /     127.0.0.1:9050 ./        forward-socks5t             /     127.0.0.1:9050 ./g' /etc/privoxy/config
@@ -1278,7 +1274,7 @@ function install_CAPE() {
 		crudini --set conf/reporting.conf runstatistics enabled yes
 	fi
 
-    python3 utils/community.py -waf -cr
+    # python3 utils/community.py -waf -cr
 
     # Configure direct internet connection
     sudo echo "400 ${INTERNET_IFACE}" >> /etc/iproute2/rt_tables
